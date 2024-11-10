@@ -5,9 +5,9 @@ void compile_c(char *code, int len, FILE *out, int array_size, unsigned char is_
     #define REPEAT(ch)                  \
         do {                            \
             while (*(c + 1) == ch) {    \
-                    count++;            \
-                    c++;                \
-                }                       \
+                count++;                \
+                c++;                    \
+            }                           \
         } while (0)
 
     int indent_level = 1;
@@ -21,7 +21,7 @@ void compile_c(char *code, int len, FILE *out, int array_size, unsigned char is_
     fprintf(out, "    %schar *ptr = memory;\n", (is_signed ? "" : "unsigned "));
 
     for (char *c = code; c < code + len; c++) {
-        for (int i = 0; i < (*c == ']' ? indent_level - 1 : indent_level); i++) {
+        for (int i = 0; i < indent_level; i++) {
             fprintf(out, "    ");
         }
 
@@ -81,7 +81,6 @@ void compile_c(char *code, int len, FILE *out, int array_size, unsigned char is_
             case '[':
                 fprintf(out, "while (*ptr) {\n");
                 indent_level++;
-
                 *open_index = (c - code);
                 open_index++;
                 break;
@@ -94,7 +93,6 @@ void compile_c(char *code, int len, FILE *out, int array_size, unsigned char is_
         }
     }
 
-    fprintf(out, "    return 0;\n");
     fprintf(out, "}\n");
 
     if (open_index > open_brackets) {

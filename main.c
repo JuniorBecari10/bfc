@@ -9,7 +9,8 @@ typedef enum {
     MODE_WRITE
 } Mode;
 
-static void handle_args(int argc, char *argv[], int *array_size, unsigned char *is_signed, char **out, Mode *mode);
+static int handle_args(int argc, char *argv[], int *array_size, unsigned char *is_signed, char **out, Mode *mode);
+static char *read_stdin(int *len);
 
 int main(int argc, char *argv[]) {
     // Default values
@@ -20,20 +21,16 @@ int main(int argc, char *argv[]) {
     Mode mode = MODE_COMPILE;
 
     int len = 0;
-    char code[1000];
+    char *code = read_stdin(&len);
 
     handle_args(argc, argv, &array_size, &is_signed, &out, &mode);
-
-    while (fgets(code + len, sizeof(code) - len, stdin) != NULL) {
-        len += strlen(code + len);
-    }
 
     FILE *out_stream = strcmp(out, "*stdout") == 0
         ? stdout
         : fopen(out, "w");
     
     if (!out_stream) {
-        perror("Failed to open output file");
+        fprintf(stderr, "Failed to open output file");
         return 1;
     }
 
@@ -50,10 +47,11 @@ int main(int argc, char *argv[]) {
     if (out_stream != stdout)
         fclose(out_stream);
     
+    free(code);
     return 0;
 }
 
-static void handle_args(int argc, char *argv[], int *array_size, unsigned char *is_signed, char **out, Mode *mode) {
+static int handle_args(int argc, char *argv[], int *array_size, unsigned char *is_signed, char **out, Mode *mode) {
     if (argc < 2) {
         fprintf(stderr, "Expected compile mode. Accepted modes: 'compile', 'write'.\n");
         return 1;
@@ -97,4 +95,30 @@ static void handle_args(int argc, char *argv[], int *array_size, unsigned char *
             }
         }
     }
+}
+
+static char *read_stdin(int *len) {
+    char *code = NULL;
+    size_t size = 0;
+
+    char c;
+    while ((c = fgetc(stdin)) != EOF) {
+        char *new = realloc(code, size + 1);
+
+        if (new == NULL) {
+            fprintf(stderr, "Cannot allocate memory.\n");
+            free(new);
+
+            return NULL;
+        }
+
+        code = new;
+        code[(*len)++] = (char)c;
+        size++;
+    }
+
+    if (code != NULL)
+        code[*len] = 0;
+    
+    return code;
 }
