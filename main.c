@@ -3,10 +3,12 @@
 #include <string.h>
 
 #include "compiler.h"
+#include "interpreter.h"
 
 typedef enum {
     MODE_COMPILE,
-    MODE_WRITE
+    MODE_WRITE,
+    MODE_INTERPRET
 } Mode;
 
 static int handle_args(int argc, char *argv[], int *array_size, unsigned char *is_signed, char **out, Mode *mode);
@@ -23,7 +25,10 @@ int main(int argc, char *argv[]) {
     int len = 0;
     char *code = read_stdin(&len);
 
-    handle_args(argc, argv, &array_size, &is_signed, &out, &mode);
+    if (handle_args(argc, argv, &array_size, &is_signed, &out, &mode) != 0) {
+        free(code);
+        return 0;
+    }
 
     FILE *out_stream = strcmp(out, "*stdout") == 0
         ? stdout
@@ -42,6 +47,10 @@ int main(int argc, char *argv[]) {
         case MODE_WRITE:
             write(code, len, out_stream);
             break;
+        
+        case MODE_INTERPRET:
+            interpret(code, len, array_size, is_signed);
+            break;
     }
     
     if (out_stream != stdout)
@@ -53,7 +62,7 @@ int main(int argc, char *argv[]) {
 
 static int handle_args(int argc, char *argv[], int *array_size, unsigned char *is_signed, char **out, Mode *mode) {
     if (argc < 2) {
-        fprintf(stderr, "Expected compile mode. Accepted modes: 'compile', 'write'.\n");
+        fprintf(stderr, "Expected mode. Accepted modes: 'compile', 'write', 'interpret'.\n");
         return 1;
     }
 
@@ -62,6 +71,13 @@ static int handle_args(int argc, char *argv[], int *array_size, unsigned char *i
     else if (strcmp(argv[1], "write") == 0) {
         *mode = MODE_WRITE;
         *out = "out.bf";
+    }
+    else if (strcmp(argv[1], "interpret") == 0) {
+        *mode = MODE_INTERPRET;
+    }
+    else {
+        fprintf(stderr, "Unknown mode: '%s'.\n", argv[1]);
+        return 1;
     }
     
     for (int i = 2; i < argc; i++) {
@@ -95,6 +111,8 @@ static int handle_args(int argc, char *argv[], int *array_size, unsigned char *i
             }
         }
     }
+
+    return 0;
 }
 
 static char *read_stdin(int *len) {
@@ -120,5 +138,6 @@ static char *read_stdin(int *len) {
     if (code != NULL)
         code[*len] = 0;
     
+    fflush(stdin);
     return code;
 }

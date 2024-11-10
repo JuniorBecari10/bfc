@@ -17,7 +17,7 @@ void compile_c(char *code, int len, FILE *out, int array_size, unsigned char is_
 
     fprintf(out, "#include <stdio.h>\n\n");
     fprintf(out, "int main(void) {\n");
-    fprintf(out, "    unsigned char memory[%d] = {0};\n", array_size);
+    fprintf(out, "    %schar memory[%d] = {0};\n", (is_signed ? "" : "unsigned "), array_size);
     fprintf(out, "    %schar *ptr = memory;\n", (is_signed ? "" : "unsigned "));
 
     for (char *c = code; c < code + len; c++) {
