@@ -81,6 +81,7 @@ void compile_c(char *code, int len, FILE *out, int array_size, unsigned char is_
             case '[':
                 fprintf(out, "while (*ptr) {\n");
                 indent_level++;
+
                 *open_index = (c - code);
                 open_index++;
                 break;
