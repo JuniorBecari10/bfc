@@ -1,4 +1,4 @@
 default: compile
 
 compile: compiler.c main.c
-	gcc interpreter.c compiler.c main.c -o main -O3 -Wpedantic -std=c99
+	gcc interpreter.c compiler.c main.c -O3 -Wall -Wpedantic -std=c99 -o bfc

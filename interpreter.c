@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void interpret(char *code, int len, int array_size, unsigned char is_signed) {
+void interpret(char *code, int len, FILE *out, int array_size, unsigned char is_signed) {
     char memory[array_size];
     char *ptr = memory;
 
@@ -28,7 +28,7 @@ void interpret(char *code, int len, int array_size, unsigned char is_signed) {
                 break;
 
             case '.':
-                putchar(*ptr);
+                putc(*ptr, out);
                 break;
 
             case ',':
