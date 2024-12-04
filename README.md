@@ -6,7 +6,9 @@ A compiler toolchain for Brainfuck, which includes a transpiler to C, an interpr
 
 `bfc` is highly configurable. Here's the table of them:
 
-The first argument is _mandatory_. The user must choose from these:
+### Mandatory
+
+The first argument is _mandatory_. The user must choose one from these:
 
 Name|Description
 ---|---
@@ -14,9 +16,9 @@ Name|Description
 `interpret`|Interprets the provided Brainfuck code.
 `write`|Generates Brainfuck code that writes the provided text.
 
----
+### Optional
 
-These are _optional_. If omitted, its default value is used. <br />
+These are _optional_. If any is omitted, its default value is used. <br />
 The _shorthand_ syntax can be used in place of the _full_ syntax.
 
 Shorthand|Full|Default|Description
